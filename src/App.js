@@ -45,7 +45,7 @@ class App extends Component {
 
 	handleClick = () => {
 		this.setState(prevState => ({
-			page: (prevState.page += 1),
+			page: prevState.page + 1,
 			load: true,
 		}));
 	};
@@ -59,10 +59,6 @@ class App extends Component {
 		});
 	};
 	clickOnImage = event => {
-		event.preventDefault();
-		if (event.target.nodeName !== 'IMG') {
-			return;
-		}
 		const bigImg = event.target.getAttribute('data-url');
 		const alt = event.target.getAttribute('alt');
 
