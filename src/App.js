@@ -1,7 +1,6 @@
 import { Component } from 'react';
 import { Searchbar } from './Components/Searchbar';
 import { ToastContainer } from 'react-toastify';
-import { animateScroll as scroll } from 'react-scroll';
 import 'react-toastify/dist/ReactToastify.css';
 import { ImageGallery } from './Components/ImageGallery';
 import { Button } from './Components/Button';
@@ -21,7 +20,6 @@ class App extends Component {
 	componentDidUpdate(prevProps, prevState) {
 		const { searchQuery, page } = this.state;
 		if (prevState.searchQuery !== searchQuery || prevState.page !== page) {
-			this.setState({ load: true });
 			this.restApi(searchQuery, page);
 		}
 	}
@@ -42,13 +40,13 @@ class App extends Component {
 					status: 'resolved',
 					load: false,
 				}));
-				this.scrollToBottom();
 			});
 	};
 
 	handleClick = () => {
 		this.setState(prevState => ({
 			page: (prevState.page += 1),
+			load: true,
 		}));
 	};
 
@@ -72,9 +70,6 @@ class App extends Component {
 			showModal: true,
 			elementsModal: { bigImg, alt },
 		});
-	};
-	scrollToBottom = () => {
-		scroll.scrollToBottom();
 	};
 
 	closeModal = () => {
