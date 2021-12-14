@@ -1,22 +1,17 @@
 import PropTypes from 'prop-types';
-import { Component } from 'react';
-import { animateScroll as scroll } from 'react-scroll';
 import style from './Button.module.scss';
 
-export class Button extends Component {
-	static propTypes = {
-		onClick: PropTypes.func.isRequired,
-	};
-	scrollToBottom = () => {
-		this.props.onClick();
-		scroll.scrollToBottom();
-	};
+export const Button = ({ nextPage, loading, children }) => {
+	return (
+		<button type="button" className={style.Button} onClick={nextPage} disabled={loading}>
+			{loading && <span>{children}</span>}
+			{!loading && <span>Load more</span>}
+		</button>
+	);
+};
 
-	render() {
-		return (
-			<button type="button" className={style.Button} onClick={this.scrollToBottom}>
-				Load more
-			</button>
-		);
-	}
-}
+Button.propTypes = {
+	nextPage: PropTypes.func.isRequired,
+	loading: PropTypes.bool.isRequired,
+	children: PropTypes.node.isRequired,
+};

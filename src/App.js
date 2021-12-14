@@ -4,25 +4,28 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ImageGallery } from './Components/ImageGallery';
 import { Button } from './Components/Button';
-import { Loader } from './Components/Loader';
+import { Spinner } from './Components/Loader';
+import { Modal } from './Components/Modal';
 import style from './App.module.scss';
-
 class App extends Component {
 	state = {
 		searchQuery: '',
 		page: 1,
 		images: [],
 		status: 'idle',
+		load: false,
+		showModal: false,
+		elementsModal: [],
 	};
 	componentDidUpdate(prevProps, prevState) {
-		if (prevState.searchQuery !== this.state.searchQuery) {
-			this.setState({ images: [] });
-			this.restApi();
+		const { searchQuery, page } = this.state;
+		if (prevState.searchQuery !== searchQuery || prevState.page !== page) {
+			this.setState({ load: true });
+			this.restApi(searchQuery, page);
 		}
 	}
 
-	restApi = () => {
-		const { searchQuery, page } = this.state;
+	restApi = (searchQuery, page) => {
 		fetch(
 			`https://pixabay.com/api/?q=${searchQuery}&page=${page}&key=24073340-1ef2f625ad6fbbc63b84a3aaa&image_type=photo&orientation=horizontal&per_page=12`,
 		)
@@ -35,10 +38,16 @@ class App extends Component {
 
 				this.setState(prevState => ({
 					images: [...prevState.images, ...hits],
-					page: prevState.page + 1,
 					status: 'resolved',
+					load: false,
 				}));
 			});
+	};
+
+	handleClick = () => {
+		this.setState(prevState => ({
+			page: (prevState.page += 1),
+		}));
 	};
 
 	getSearchQuery = search => {
@@ -49,16 +58,29 @@ class App extends Component {
 			status: 'pending',
 		});
 	};
+	clickOnImage = event => {
+		const bigImg = event.target.getAttribute('data-url');
+		const alt = event.target.getAttribute('alt');
+
+		this.setState({
+			showModal: true,
+			elementsModal: { bigImg, alt },
+		});
+	};
+
+	closeModal = () => {
+		this.setState(prevState => ({
+			showModal: !prevState.showModal,
+		}));
+	};
 
 	render() {
-		const { images, status, searchQuery } = this.state;
+		const { images, status, searchQuery, load, showModal, elementsModal } = this.state;
 		const bth = !(images.length < 12);
 		return (
 			<div className={style.App}>
 				<Searchbar onSubmit={this.getSearchQuery} />
-
-				{status === 'pending' && <Loader />}
-
+				{status === 'pending' && <Spinner />}
 				{status === 'rejected' && (
 					<div>
 						<h1>Images with the title {searchQuery} not found</h1>
@@ -67,11 +89,17 @@ class App extends Component {
 
 				{status === 'resolved' && (
 					<>
-						<ImageGallery images={images} />
-						{bth && <Button onClick={this.restApi} />}
+						<ImageGallery images={images} clickImage={this.clickOnImage} />
+						{bth && (
+							<Button nextPage={this.handleClick} loading={load}>
+								<Spinner />
+							</Button>
+						)}
 					</>
 				)}
-
+				{showModal && (
+					<Modal alt={elementsModal.alt} src={elementsModal.bigImg} onClose={this.closeModal} />
+				)}
 				<ToastContainer
 					position="top-right"
 					autoClose={3000}
