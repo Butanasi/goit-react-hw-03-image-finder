@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import { Searchbar } from './Components/Searchbar';
 import { ToastContainer } from 'react-toastify';
+import { animateScroll as scroll } from 'react-scroll';
 import 'react-toastify/dist/ReactToastify.css';
 import { ImageGallery } from './Components/ImageGallery';
 import { Button } from './Components/Button';
@@ -41,6 +42,7 @@ class App extends Component {
 					status: 'resolved',
 					load: false,
 				}));
+				this.scrollToBottom();
 			});
 	};
 
@@ -59,6 +61,10 @@ class App extends Component {
 		});
 	};
 	clickOnImage = event => {
+		event.preventDefault();
+		if (event.target.nodeName !== 'IMG') {
+			return;
+		}
 		const bigImg = event.target.getAttribute('data-url');
 		const alt = event.target.getAttribute('alt');
 
@@ -66,6 +72,9 @@ class App extends Component {
 			showModal: true,
 			elementsModal: { bigImg, alt },
 		});
+	};
+	scrollToBottom = () => {
+		scroll.scrollToBottom();
 	};
 
 	closeModal = () => {
